@@ -1,0 +1,24 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+
+# Runtime logs
+logs/*
+!logs/.gitkeep
+
+# Local data and database exports
+data/
+backups/
+*.dump
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# macOS and editors
+.DS_Store
+.idea/
+.vscode/
