@@ -84,9 +84,73 @@ SQL необходимо применять отдельно.
 ## Статус передачи команде
 
 Инфраструктура проверена на macOS / ARM64.
-DAG, таблицы STG и доступ загрузчика к DWH пока не реализованы.
+Созданы четыре таблицы STG и учетная запись ppad_loader.
+Подключение github_stg проверено из контейнера airflow-scheduler.
+DAG и загрузка GitHub API пока не реализованы.
 
 Инструкция первоначального развертывания с генерацией секретов
 и инструкция восстановления данных будут добавлены перед передачей.
 Простого копирования .env.example недостаточно:
 значения-заглушки должны быть заменены.
+
+## Подключение Airflow к STG
+
+Connection ID: github_stg.
+
+Соединение задается переменной AIRFLOW_CONN_GITHUB_STG
+в общем блоке environment дополнительного Compose-файла.
+
+- Тип: postgres.
+- Host: postgres.
+- Port: 5432.
+- Database: значение POSTGRES_DB.
+- Login: ppad_loader.
+- Password: значение STG_LOADER_PASSWORD из локального .env.
+
+Это отдельное подключение к DWH, не к метабазе Airflow.
+Соединение из environment не отображается в списке Connections UI.
+
+После изменения переменных окружения сервисы нужно
+пересоздать через docker compose up -d, а не только restart.
+
+## Подготовка STG в существующей базе
+
+После создания схем необходимо применить SQL в следующем порядке:
+
+1. sql/02_create_stg_tables.sql — таблицы, ограничения и индекс.
+2. sql/04_setup_stg_loader.sql — учетная запись и права загрузчика.
+
+sql/03_check_stg.sql — диагностические SELECT-запросы, а не миграция.
+
+Применение таблиц:
+
+```bash
+docker compose exec -T postgres sh -c \
+  'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1' \
+  < sql/02_create_stg_tables.sql
+```
+
+Настройка загрузчика из доверенного локального .env:
+
+```bash
+(
+  set -a
+  . ./.env
+  set +a
+
+  docker compose exec -T -e STG_LOADER_PASSWORD postgres sh -c \
+    'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1' \
+    < sql/04_setup_stg_loader.sql
+)
+```
+
+Проверка STG:
+
+```bash
+docker compose exec -T postgres sh -c \
+  'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1' \
+  < sql/03_check_stg.sql
+```
+
+Не запускать все файлы sql/ автоматически по маске:
+часть файлов содержит проверки или требует переменных окружения.
