@@ -20,7 +20,13 @@ Apache Airflow управляет загрузками и зависимостя
 
 ## Статус
 
-Создан каркас проекта. Docker Compose, SQL и DAG пока не реализованы.
+Работают PostgreSQL DWH и Apache Airflow 2.11.0.
+Созданы схемы stg, dds, cdm.
+Проверены база метаданных Airflow, scheduler и веб-интерфейс.
+
+Инструкция управления: [docs/infrastructure.md](docs/infrastructure.md).
+
+Следующий этап: контракт STG, учетная запись загрузчика и GitHub API → STG.
 
 ## Безопасность
 
