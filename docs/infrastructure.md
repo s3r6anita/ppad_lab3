@@ -86,7 +86,21 @@ SQL необходимо применять отдельно.
 Инфраструктура проверена на macOS / ARM64.
 Созданы четыре таблицы STG и учетная запись ppad_loader.
 Подключение github_stg проверено из контейнера airflow-scheduler.
-DAG и загрузка GitHub API пока не реализованы.
+
+Реализован DAG github_to_stg: полная загрузка трех репозиториев
+из config/repositories.json с сохранением исходных объектов в STG.
+
+Запуск ручной, schedule=None.
+Одна задача load_github последовательно обрабатывает репозитории.
+Повторные попытки: 2, интервал — 2 минуты.
+
+Проверено:
+- Первый запуск создает успешный батч и загружает все страницы.
+- Повтор задачи успешного батча не изменяет данные.
+- Новый запуск создает отдельный снимок и сохраняет предыдущий.
+
+Восстановление после частичной ошибки пока отдельно не проверялось.
+SCD2 и учет обработанных батчей реализуются участником DDS.
 
 Инструкция первоначального развертывания с генерацией секретов
 и инструкция восстановления данных будут добавлены перед передачей.
@@ -154,3 +168,51 @@ docker compose exec -T postgres sh -c \
 
 Не запускать все файлы sql/ автоматически по маске:
 часть файлов содержит проверки или требует переменных окружения.
+
+## GitHub API
+
+GITHUB_TOKEN хранится только в локальном .env.
+В .env.example находится заглушка.
+
+Токен передается в airflow-scheduler через environment.
+При изменении токена scheduler необходимо пересоздать:
+
+```bash
+docker compose up -d --wait --wait-timeout 180 airflow-scheduler
+```
+
+Проверка доступа ко всем настроенным источникам:
+
+```bash
+docker compose exec -T airflow-scheduler python - < scripts/check_github_api.py
+```
+
+## Ручной запуск загрузки
+
+Включить DAG:
+
+```bash
+docker compose exec -T airflow-scheduler airflow dags unpause github_to_stg
+```
+
+Создать новый запуск с уникальным run_id:
+
+```bash
+docker compose exec -T airflow-scheduler airflow dags trigger -r "snapshot_$(date -u +%Y%m%dT%H%M%SZ)" github_to_stg
+```
+
+Проверить запуски:
+
+```bash
+docker compose exec -T airflow-scheduler airflow dags list-runs -d github_to_stg
+```
+
+Логи задачи доступны в веб-интерфейсе Airflow.
+
+## Проверки данных
+
+- sql/05_check_first_load.sql — проверка запуска first_stg_load.
+- sql/06_check_snapshots.sql — проверка первых двух снимков.
+
+Это диагностические запросы, а не миграции.
+Код в Git не содержит сами данные PostgreSQL.

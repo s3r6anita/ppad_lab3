@@ -15,7 +15,11 @@ STG хранит исходные данные GitHub REST API и метадан
 - GET /repos/{owner}/{repo}/issues
 
 Список репозиториев будет храниться в config/repositories.json.
-Его точный состав фиксируется отдельно.
+
+Изначальный состав:
+- arkivanov/Decompose
+- arkivanov/MVIKotlin
+- arkivanov/Essenty
 
 ## Режим загрузки
 
