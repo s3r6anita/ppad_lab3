@@ -17,6 +17,7 @@ __pycache__/
 *.py[cod]
 venv/
 .venv/
+/.venv/
 
 # macOS and editors
 .DS_Store
