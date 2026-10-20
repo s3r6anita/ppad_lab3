@@ -26,8 +26,6 @@ Apache Airflow управляет загрузками и зависимостя
 
 Инструкция управления: [docs/infrastructure.md](docs/infrastructure.md).
 
-Следующий этап: контракт STG, учетная запись загрузчика и GitHub API → STG.
-
 ## Безопасность
 
 Реальные токены и пароли не хранятся в Git.
@@ -37,4 +35,23 @@ Apache Airflow управляет загрузками и зависимостя
 
 Код, конфигурация и документация передаются через этот репозиторий.
 Экспорт данных STG передается отдельно.
-Контракт STG будет описан в docs/stg_contract.md.
+
+Контракт STG описан в [docs/stg_contract.md](docs/stg_contract.md).
+
+Контракт DDS описан в [docs/dds_contract.md](docs/dds_contract.md).
+
+## Структура репозитория
+
+- [/config](config) - перечень анализируемых публичных GitHub-репозиториев
+- [/dags](dags) - python-скрипты наполнения STG-хранилища данными из Github API
+- [/docs](docs) - документация по проекту: общая инфрастуктурная и отдельно для stg, dds
+- [/scripts](scripts) - python-скрипты:
+  - [check_github_api.py](scripts/check_github_api.py) проверка доступности Github API
+  - [check_dds_connection.py](scripts/check_dds_connection.py) проверка подключения к таблицам DDS
+  - [check_dds_transform.py](scripts/check_dds_transform.py) проверка статуса преобразования из STG в DDS 
+  - [load_dds.py](scripts/load_dds.py) наполнение таблиц DDS из STG
+  - [dds_transform.py](scripts/dds_transform.py) преобразования данных из форматов STG в форматы DDS
+- [/sql](sql) - sql-скрипты для создания, настройки и проверок таблиц
+- [/test](test) - python- и sql-тесты преобразования данных из STG в DDS
+- [docker-compose.yml](docker-compose.yml) - docker-контейнер с postgres, airflow-postgres
+- [docker-compose.override.yml](docker-compose.override.yml) - docker-контейнер с сервисами airflow (инициализация, web-сервер и scheduler)
