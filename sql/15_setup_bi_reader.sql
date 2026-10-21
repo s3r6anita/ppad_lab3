@@ -1,0 +1,39 @@
+\set ON_ERROR_STOP on
+\getenv bi_password BI_READER_PASSWORD
+
+BEGIN;
+
+SELECT
+    'CREATE ROLE ppad_bi_reader LOGIN
+     NOSUPERUSER NOCREATEDB NOCREATEROLE
+     NOREPLICATION NOBYPASSRLS'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM pg_roles
+    WHERE rolname = 'ppad_bi_reader'
+)
+\gexec
+
+ALTER ROLE ppad_bi_reader
+    WITH LOGIN
+    NOSUPERUSER NOCREATEDB NOCREATEROLE
+    NOREPLICATION NOBYPASSRLS
+    PASSWORD :'bi_password';
+
+SELECT format(
+    'GRANT CONNECT ON DATABASE %I TO ppad_bi_reader',
+    current_database()
+)
+\gexec
+
+GRANT USAGE ON SCHEMA cdm
+TO ppad_bi_reader;
+
+GRANT SELECT
+ON ALL TABLES IN SCHEMA cdm
+TO ppad_bi_reader;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA cdm
+GRANT SELECT ON TABLES TO ppad_bi_reader;
+
+COMMIT;
