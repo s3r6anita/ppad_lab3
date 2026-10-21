@@ -6,6 +6,13 @@ x-airflow-common: &airflow-common
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@airflow-postgres:5432/${AIRFLOW_DB_NAME}"
     AIRFLOW_CONN_GITHUB_STG: >-
       {"conn_type":"postgres","host":"postgres","port":5432,"schema":"${POSTGRES_DB}","login":"ppad_loader","password":"${STG_LOADER_PASSWORD:?STG_LOADER_PASSWORD is required}","extra":{"connect_timeout":10,"application_name":"airflow_github_stg"}}
+    AIRFLOW_CONN_GITHUB_DDS: >-
+      {"conn_type":"postgres","host":"postgres","port":5432,"schema":"${POSTGRES_DB}","login":"ppad_dds_loader","password":"${DDS_LOADER_PASSWORD:?DDS_LOADER_PASSWORD is required}","extra":{"connect_timeout":10,"application_name":"airflow_github_dds"}}
+    AIRFLOW_CONN_GITHUB_CDM: >-
+      {"conn_type":"postgres","host":"postgres","port":5432,"schema":"${POSTGRES_DB}","login":"ppad_cdm_loader","password":"${CDM_LOADER_PASSWORD:?CDM_LOADER_PASSWORD is required}","extra":{"connect_timeout":10,"application_name":"airflow_github_cdm"}}
+    DDS_LOADER_PASSWORD: ${DDS_LOADER_PASSWORD:-}
+    CDM_LOADER_PASSWORD: ${CDM_LOADER_PASSWORD:-}
+    _PIP_ADDITIONAL_REQUIREMENTS: "psycopg[binary]==3.3.6"
     AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY:?AIRFLOW_FERNET_KEY is required}
     AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_WEBSERVER_SECRET_KEY:?AIRFLOW_WEBSERVER_SECRET_KEY is required}
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
@@ -22,6 +29,7 @@ x-airflow-common: &airflow-common
     - ./plugins:/opt/airflow/plugins:ro
     - ./config:/opt/airflow/config:ro
     - ./sql:/opt/airflow/sql:ro
+    - ./scripts:/opt/airflow/scripts:ro
   depends_on:
     airflow-postgres:
       condition: service_healthy
@@ -75,3 +83,22 @@ services:
       timeout: 10s
       retries: 12
       start_period: 60s
+
+  metabase:
+    image: metabase/metabase:v0.50.26
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${METABASE_PORT:-3000}:3000"
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - "http://localhost:3000/api/health"
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 45s
+    depends_on:
+      postgres:
+        condition: service_healthy
