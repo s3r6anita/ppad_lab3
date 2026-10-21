@@ -2,99 +2,156 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Аналитика репозиториев Kotlin Multiplatform (CDM) — BI Preview</title>
+    <title>Аналитика репозиториев Kotlin Multiplatform (CDM) — Neo-Brutalism BI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&family=Space+Grotesk:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-color: #0f172a; --card-bg: #1e293b; --border-color: #334155; --text-primary: #f8fafc; --text-secondary: #94a3b8; --accent-blue: #38bdf8; --accent-purple: #c084fc; --accent-green: #4ade80; --accent-amber: #fbbf24; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-color); color: var(--text-primary); line-height: 1.5; padding: 24px; }
-        header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        h1 { font-size: 24px; font-weight: 700; color: #fff; } .meta { font-size: 13px; color: var(--text-secondary); }
-        .grid-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .kpi-title { font-size: 13px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
-        .kpi-value { font-size: 28px; font-weight: 700; color: #fff; } .kpi-sub { font-size: 12px; color: var(--accent-blue); margin-top: 4px; }
-        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-        @media (max-width: 900px) { .charts-row { grid-template-columns: 1fr; } }
-        .card-header { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #fff; display: flex; justify-content: space-between; align-items: center; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-        th { background: #0b1120; color: var(--text-secondary); font-weight: 600; padding: 10px 12px; border-bottom: 1px solid var(--border-color); }
-        td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); color: var(--text-primary); }
-        tr:hover td { background: rgba(255,255,255,0.03); }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
-        .badge-open { background: rgba(251,191,36,0.15); color: var(--accent-amber); } .badge-closed { background: rgba(74,222,128,0.15); color: var(--accent-green); }
-        .badge-pr { background: rgba(192,132,252,0.15); color: var(--accent-purple); } .badge-issue { background: rgba(56,189,248,0.15); color: var(--accent-blue); }
-        .chart-container { width: 100%; min-height: 220px; display: flex; align-items: flex-end; gap: 12px; padding-top: 16px; }
-        .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
-        .bar-rect { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.3s ease; }
-        .bar-label { font-size: 11px; color: var(--text-secondary); margin-top: 6px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
-        .bar-val { font-size: 11px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+        :root { --bg: #F4F0EA; --ink: #111111; --card: #FFFFFF; --lime: #B8FF01; --yellow: #FFE600; --coral: #FF6B6B; --cyan: #00E5FF; --violet: #C084FC; }
+        * { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0 !important; }
+        body { background-color: var(--bg); background-image: radial-gradient(var(--ink) 1px, transparent 1px); background-size: 20px 20px; color: var(--ink); font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.4; padding: 24px; }
+        .ticker { background: var(--ink); color: var(--yellow); font-family: 'JetBrains Mono', monospace; font-weight: 800; padding: 10px 16px; border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); margin-bottom: 20px; font-size: 13px; letter-spacing: 0.05em; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+        header { background: var(--card); border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); padding: 20px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+        h1 { font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; color: var(--ink); }
+        .meta-sub { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: #444; margin-top: 4px; }
+        .stamp { background: var(--yellow); color: var(--ink); border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-weight: 900; font-size: 12px; text-transform: uppercase; }
+        .grid-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background: var(--card); border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); display: flex; flex-direction: column; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .kpi-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--ink); }
+        .kpi-strip { padding: 6px 12px; border-bottom: 3px solid var(--ink); font-family: 'JetBrains Mono', monospace; font-weight: 900; font-size: 12px; text-transform: uppercase; display: flex; justify-content: space-between; }
+        .kpi-body { padding: 16px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .kpi-title { font-size: 13px; font-weight: 800; text-transform: uppercase; color: #333; margin-bottom: 6px; }
+        .kpi-value { font-size: 32px; font-weight: 900; color: var(--ink); font-family: 'JetBrains Mono', monospace; line-height: 1.1; margin: 4px 0 8px; }
+        .kpi-sub { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #555; }
+        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        @media (max-width: 960px) { .charts-row { grid-template-columns: 1fr; } }
+        .card { background: var(--card); border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); padding: 20px; transition: transform 0.15s ease, box-shadow 0.15s ease; overflow-x: auto; }
+        .card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--ink); }
+        .card-header { font-size: 16px; font-weight: 900; text-transform: uppercase; margin-bottom: 16px; color: var(--ink); display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--ink); padding-bottom: 10px; }
+        .meta-tag { background: var(--ink); color: var(--yellow); padding: 3px 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800; border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+        th { background: var(--ink); color: #fff; font-family: 'JetBrains Mono', monospace; font-weight: 800; text-transform: uppercase; font-size: 11px; padding: 10px 12px; border: 2px solid var(--ink); }
+        td { border: 2px solid var(--ink); padding: 10px 12px; background: var(--card); font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--ink); }
+        tr:hover td { background: #FFFDE6; }
+        .badge { display: inline-block; padding: 3px 8px; border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); font-size: 11px; font-weight: 900; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+        .badge-open { background: var(--yellow); color: var(--ink); } .badge-closed { background: var(--lime); color: var(--ink); }
+        .badge-pr { background: var(--violet); color: var(--ink); } .badge-issue { background: var(--cyan); color: var(--ink); }
+        .chart-container { width: 100%; min-height: 220px; display: flex; align-items: flex-end; gap: 8px; padding-top: 16px; overflow-x: auto; }
+        .bar-col { flex: 1; min-width: 28px; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+        .bar-rect { width: 100%; border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); transition: height 0.3s ease; }
+        .bar-label { font-size: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 800; color: var(--ink); margin-top: 8px; text-align: center; }
+        .bar-val { font-size: 11px; font-family: 'JetBrains Mono', monospace; font-weight: 900; color: var(--ink); margin-bottom: 4px; }
     </style>
 </head>
 <body>
+    <div class="ticker">
+        <span>ППАД ЛАБ 3 // СЛОЙ CDM // KOTLIN MULTIPLATFORM // POSTGRESQL DDS → CDM</span>
+        <span>ROLE: PPAD_BI_READER</span>
+    </div>
     <header>
-        <div><h1>Аналитика репозиториев Kotlin Multiplatform (CDM)</h1><div class="meta">ППАД Лабораторная 3 • Витрина данных CDM • Источник: PostgreSQL dds → cdm</div></div>
-        <div class="meta">Сгенерировано: <strong>2026-10-21 06:58:50 UTC</strong></div>
+        <div>
+            <h1>Аналитика репозиториев Kotlin Multiplatform (CDM)</h1>
+            <div class="meta-sub">ППАД ЛАБОРАТОРНАЯ 3 • АНАЛИТИЧЕСКИЕ ВИТРИНЫ CDM • НЕОБРУТАЛИЗМ BI DASHBOARD</div>
+        </div>
+        <div class="stamp">СГЕНЕРИРОВАНО: 2026-10-21 12:35:04 UTC</div>
     </header>
     <div class="grid-kpis">
-        <div class="card"><div class="kpi-title">Всего репозиториев</div><div class="kpi-value">3</div><div class="kpi-sub">4 версий в SCD2</div></div>
-        <div class="card"><div class="kpi-title">Всего сущностей (Issues + PR)</div><div class="kpi-value">9</div><div class="kpi-sub">6 Issues • 3 PRs</div></div>
-        <div class="card"><div class="kpi-title">Close Rate Issues / PR</div><div class="kpi-value">55.56%</div><div class="kpi-sub">5 закрыто из 9</div></div>
-        <div class="card"><div class="kpi-title">Медиана решения (SLA)</div><div class="kpi-value">930.5 ч.</div><div class="kpi-sub">Среднее: 930.5 ч.</div></div>
-        <div class="card"><div class="kpi-title">Уникальных авторов</div><div class="kpi-value">9</div><div class="kpi-sub">Активных контрибьюторов</div></div>
+        <div class="kpi-card">
+            <div class="kpi-strip" style="background: var(--lime);"><span>[KPI-01] РЕПОЗИТОРИИ</span><span>★</span></div>
+            <div class="kpi-body">
+                <div class="kpi-title">Всего репозиториев</div><div class="kpi-value">3</div><div class="kpi-sub">6 версий в SCD2</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-strip" style="background: var(--yellow);"><span>[KPI-02] СУЩНОСТИ</span><span>#</span></div>
+            <div class="kpi-body">
+                <div class="kpi-title">Всего сущностей (Issues + PR)</div><div class="kpi-value">1220</div><div class="kpi-sub">431 Issues • 789 PRs</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-strip" style="background: var(--coral);"><span>[KPI-03] CLOSE RATE</span><span>%</span></div>
+            <div class="kpi-body">
+                <div class="kpi-title">Close Rate Issues / PR</div><div class="kpi-value">99.34%</div><div class="kpi-sub">1212 закрыто из 1220</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-strip" style="background: var(--cyan);"><span>[KPI-04] SLA РЕШЕНИЯ</span><span>⏱</span></div>
+            <div class="kpi-body">
+                <div class="kpi-title">Медиана решения (SLA)</div><div class="kpi-value">105.89 ч.</div><div class="kpi-sub">Среднее: 779.58 ч.</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-strip" style="background: var(--violet);"><span>[KPI-05] АВТОРЫ</span><span>👤</span></div>
+            <div class="kpi-body">
+                <div class="kpi-title">Уникальных авторов</div><div class="kpi-value">249</div><div class="kpi-sub">Активных контрибьюторов</div>
+            </div>
+        </div>
     </div>
     <div class="charts-row">
-        <div class="card"><div class="card-header"><span>1. Сводка активности репозиториев</span><span class="meta">cdm.repository_summary</span></div>
-            <table><thead><tr><th>Репозиторий</th><th>Звезды</th><th>Forks</th><th>Issues / PR</th><th>Close Rate</th><th>Медиана SLA</th></tr></thead><tbody><tr><td><strong>arkivanov/Decompose</strong></td><td>★ 3485</td><td>⑂ 215</td><td>3 / 2</td><td>66.67%</td><td>2715.50 ч.</td></tr>
-<tr><td><strong>arkivanov/Essenty</strong></td><td>★ 920</td><td>⑂ 45</td><td>2 / 0</td><td>50.00%</td><td>24.00 ч.</td></tr>
-<tr><td><strong>arkivanov/MVIKotlin</strong></td><td>★ 1850</td><td>⑂ 120</td><td>1 / 1</td><td>100.00%</td><td>52.00 ч.</td></tr></tbody></table></div>
-        <div class="card"><div class="card-header"><span>2. Соотношение категорий и динамика по месяцам</span><span class="meta">cdm.activity_monthly</span></div><div class="chart-container"><div class="bar-col"><span class="bar-val">1</span><div class="bar-rect" style="height: 80px; background-color: var(--accent-blue);"></div><div class="bar-label">Jan 26 (ISS)</div></div>
-<div class="bar-col"><span class="bar-val">1</span><div class="bar-rect" style="height: 80px; background-color: var(--accent-blue);"></div><div class="bar-label">Feb 26 (ISS)</div></div>
-<div class="bar-col"><span class="bar-val">1</span><div class="bar-rect" style="height: 80px; background-color: var(--accent-blue);"></div><div class="bar-label">Feb 26 (ISS)</div></div>
-<div class="bar-col"><span class="bar-val">1</span><div class="bar-rect" style="height: 80px; background-color: var(--accent-purple);"></div><div class="bar-label">Feb 26 (PR)</div></div>
-<div class="bar-col"><span class="bar-val">1</span><div class="bar-rect" style="height: 80px; background-color: var(--accent-blue);"></div><div class="bar-label">Mar 26 (ISS)</div></div>
-<div class="bar-col"><span class="bar-val">2</span><div class="bar-rect" style="height: 160px; background-color: var(--accent-blue);"></div><div class="bar-label">Mar 26 (ISS)</div></div>
-<div class="bar-col"><span class="bar-val">1</span><div class="bar-rect" style="height: 80px; background-color: var(--accent-purple);"></div><div class="bar-label">Mar 26 (PR)</div></div>
-<div class="bar-col"><span class="bar-val">0</span><div class="bar-rect" style="height: 10px; background-color: var(--accent-blue);"></div><div class="bar-label">Oct 26 (ISS)</div></div>
-<div class="bar-col"><span class="bar-val">1</span><div class="bar-rect" style="height: 80px; background-color: var(--accent-purple);"></div><div class="bar-label">Oct 26 (PR)</div></div></div></div>
+        <div class="card"><div class="card-header"><span>1. Сводка активности репозиториев</span><span class="meta-tag">cdm.repository_summary</span></div>
+            <table><thead><tr><th>Репозиторий</th><th>Звезды</th><th>Forks</th><th>Issues / PR</th><th>Close Rate</th><th>Медиана SLA</th></tr></thead><tbody><tr><td><strong>arkivanov/Decompose</strong></td><td>★ 2884</td><td>⑂ 110</td><td>337 / 547</td><td><span class="badge badge-closed">99.11%</span></td><td>47.84 ч.</td></tr>
+<tr><td><strong>arkivanov/Essenty</strong></td><td>★ 587</td><td>⑂ 18</td><td>40 / 154</td><td><span class="badge badge-closed">97.50%</span></td><td>71.61 ч.</td></tr>
+<tr><td><strong>arkivanov/MVIKotlin</strong></td><td>★ 1034</td><td>⑂ 43</td><td>54 / 88</td><td><span class="badge badge-closed">94.44%</span></td><td>198.23 ч.</td></tr></tbody></table></div>
+        <div class="card"><div class="card-header"><span>2. Динамика активности по месяцам</span><span class="meta-tag">cdm.activity_monthly</span></div><div class="chart-container"><div class="bar-col"><span class="bar-val">2</span><div class="bar-rect" style="height: 20px; background-color: var(--violet);"></div><div class="bar-label">Feb 26<br>(PR)</div></div>
+<div class="bar-col"><span class="bar-val">3</span><div class="bar-rect" style="height: 30px; background-color: var(--cyan);"></div><div class="bar-label">Mar 26<br>(ISS)</div></div>
+<div class="bar-col"><span class="bar-val">5</span><div class="bar-rect" style="height: 50px; background-color: var(--violet);"></div><div class="bar-label">Mar 26<br>(PR)</div></div>
+<div class="bar-col"><span class="bar-val">2</span><div class="bar-rect" style="height: 20px; background-color: var(--cyan);"></div><div class="bar-label">Apr 26<br>(ISS)</div></div>
+<div class="bar-col"><span class="bar-val">7</span><div class="bar-rect" style="height: 70px; background-color: var(--violet);"></div><div class="bar-label">Apr 26<br>(PR)</div></div>
+<div class="bar-col"><span class="bar-val">1</span><div class="bar-rect" style="height: 10px; background-color: var(--cyan);"></div><div class="bar-label">May 26<br>(ISS)</div></div>
+<div class="bar-col"><span class="bar-val">1</span><div class="bar-rect" style="height: 10px; background-color: var(--cyan);"></div><div class="bar-label">Jun 26<br>(ISS)</div></div>
+<div class="bar-col"><span class="bar-val">2</span><div class="bar-rect" style="height: 20px; background-color: var(--violet);"></div><div class="bar-label">Jun 26<br>(PR)</div></div>
+<div class="bar-col"><span class="bar-val">1</span><div class="bar-rect" style="height: 10px; background-color: var(--cyan);"></div><div class="bar-label">Jul 26<br>(ISS)</div></div>
+<div class="bar-col"><span class="bar-val">10</span><div class="bar-rect" style="height: 100px; background-color: var(--violet);"></div><div class="bar-label">Jul 26<br>(PR)</div></div>
+<div class="bar-col"><span class="bar-val">1</span><div class="bar-rect" style="height: 10px; background-color: var(--cyan);"></div><div class="bar-label">Aug 26<br>(ISS)</div></div>
+<div class="bar-col"><span class="bar-val">2</span><div class="bar-rect" style="height: 20px; background-color: var(--violet);"></div><div class="bar-label">Aug 26<br>(PR)</div></div>
+<div class="bar-col"><span class="bar-val">2</span><div class="bar-rect" style="height: 20px; background-color: var(--cyan);"></div><div class="bar-label">Sep 26<br>(ISS)</div></div>
+<div class="bar-col"><span class="bar-val">16</span><div class="bar-rect" style="height: 160px; background-color: var(--violet);"></div><div class="bar-label">Sep 26<br>(PR)</div></div>
+<div class="bar-col"><span class="bar-val">2</span><div class="bar-rect" style="height: 20px; background-color: var(--cyan);"></div><div class="bar-label">Oct 26<br>(ISS)</div></div>
+<div class="bar-col"><span class="bar-val">14</span><div class="bar-rect" style="height: 140px; background-color: var(--violet);"></div><div class="bar-label">Oct 26<br>(PR)</div></div></div></div>
     </div>
     <div class="charts-row">
-        <div class="card"><div class="card-header"><span>3. Топ контрибьюторов</span><span class="meta">cdm.contributor_activity</span></div>
-            <table><thead><tr><th>Автор</th><th>Репозиторий</th><th>Всего</th><th>Issues</th><th>PRs</th><th>Ср. SLA</th></tr></thead><tbody><tr><td><strong>arkivanov</strong></td><td>arkivanov/MVIKotlin</td><td><strong>1</strong></td><td>1</td><td>0</td><td>52.00 ч.</td></tr>
-<tr><td><strong>sergey_p</strong></td><td>arkivanov/MVIKotlin</td><td><strong>1</strong></td><td>0</td><td>1</td><td>- ч.</td></tr>
-<tr><td><strong>arkivanov</strong></td><td>arkivanov/Decompose</td><td><strong>1</strong></td><td>1</td><td>0</td><td>56.00 ч.</td></tr>
-<tr><td><strong>alex_kmp</strong></td><td>arkivanov/Decompose</td><td><strong>1</strong></td><td>0</td><td>1</td><td>24.00 ч.</td></tr>
-<tr><td><strong>elena_dev</strong></td><td>arkivanov/Decompose</td><td><strong>1</strong></td><td>1</td><td>0</td><td>- ч.</td></tr>
-<tr><td><strong>john_doe</strong></td><td>arkivanov/Decompose</td><td><strong>1</strong></td><td>1</td><td>0</td><td>5375.00 ч.</td></tr>
-<tr><td><strong>wasm_guru</strong></td><td>arkivanov/Decompose</td><td><strong>1</strong></td><td>0</td><td>1</td><td>- ч.</td></tr>
-<tr><td><strong>arkivanov</strong></td><td>arkivanov/Essenty</td><td><strong>1</strong></td><td>1</td><td>0</td><td>24.00 ч.</td></tr>
-<tr><td><strong>maria_k</strong></td><td>arkivanov/Essenty</td><td><strong>1</strong></td><td>1</td><td>0</td><td>- ч.</td></tr></tbody></table></div>
-        <div class="card"><div class="card-header"><span>4. Аналитика меток (Labels)</span><span class="meta">cdm.label_analytics</span></div>
-            <table><thead><tr><th>Метка</th><th>Репозиторий</th><th>Всего</th><th>Закрыто</th><th>Close Rate</th></tr></thead><tbody><tr><td><span class="badge badge-issue">bug</span></td><td>arkivanov/Decompose</td><td><strong>2</strong></td><td>2</td><td>100.00%</td></tr>
-<tr><td><span class="badge badge-issue">enhancement</span></td><td>arkivanov/Decompose</td><td><strong>2</strong></td><td>1</td><td>50.00%</td></tr>
-<tr><td><span class="badge badge-issue">ios</span></td><td>arkivanov/Decompose</td><td><strong>1</strong></td><td>1</td><td>100.00%</td></tr>
-<tr><td><span class="badge badge-issue">documentation</span></td><td>arkivanov/Decompose</td><td><strong>1</strong></td><td>0</td><td>0.00%</td></tr>
-<tr><td><span class="badge badge-issue">wasm</span></td><td>arkivanov/Decompose</td><td><strong>1</strong></td><td>0</td><td>0.00%</td></tr>
-<tr><td><span class="badge badge-issue">enhancement</span></td><td>arkivanov/Essenty</td><td><strong>1</strong></td><td>0</td><td>0.00%</td></tr>
-<tr><td><span class="badge badge-issue">bug</span></td><td>arkivanov/MVIKotlin</td><td><strong>1</strong></td><td>1</td><td>100.00%</td></tr>
-<tr><td><span class="badge badge-issue">lifecycle</span></td><td>arkivanov/Essenty</td><td><strong>1</strong></td><td>1</td><td>100.00%</td></tr>
-<tr><td><span class="badge badge-issue">enhancement</span></td><td>arkivanov/MVIKotlin</td><td><strong>1</strong></td><td>0</td><td>0.00%</td></tr></tbody></table></div>
+        <div class="card"><div class="card-header"><span>3. Топ контрибьюторов</span><span class="meta-tag">cdm.contributor_activity</span></div>
+            <table><thead><tr><th>Автор</th><th>Репозиторий</th><th>Всего</th><th>Issues</th><th>PRs</th><th>Ср. SLA</th></tr></thead><tbody><tr><td><strong>arkivanov</strong></td><td>arkivanov/Decompose</td><td><span class="badge" style="background: var(--lime);">565</span></td><td>95</td><td>470</td><td>279.52 ч.</td></tr>
+<tr><td><strong>arkivanov</strong></td><td>arkivanov/Essenty</td><td><span class="badge" style="background: var(--lime);">162</span></td><td>17</td><td>145</td><td>36.52 ч.</td></tr>
+<tr><td><strong>arkivanov</strong></td><td>arkivanov/MVIKotlin</td><td><span class="badge" style="background: var(--lime);">106</span></td><td>28</td><td>78</td><td>448.42 ч.</td></tr>
+<tr><td><strong>DatL4g</strong></td><td>arkivanov/Decompose</td><td><span class="badge" style="background: var(--lime);">9</span></td><td>7</td><td>2</td><td>1271.98 ч.</td></tr>
+<tr><td><strong>malliaridis</strong></td><td>arkivanov/Decompose</td><td><span class="badge" style="background: var(--lime);">7</span></td><td>2</td><td>5</td><td>43.15 ч.</td></tr>
+<tr><td><strong>ttypic</strong></td><td>arkivanov/Decompose</td><td><span class="badge" style="background: var(--lime);">7</span></td><td>0</td><td>7</td><td>52.89 ч.</td></tr>
+<tr><td><strong>Nek-12</strong></td><td>arkivanov/Decompose</td><td><span class="badge" style="background: var(--lime);">7</span></td><td>7</td><td>0</td><td>64.30 ч.</td></tr>
+<tr><td><strong>b95505017</strong></td><td>arkivanov/Decompose</td><td><span class="badge" style="background: var(--lime);">6</span></td><td>6</td><td>0</td><td>388.95 ч.</td></tr>
+<tr><td><strong>Burtan</strong></td><td>arkivanov/Decompose</td><td><span class="badge" style="background: var(--lime);">6</span></td><td>6</td><td>0</td><td>118.20 ч.</td></tr>
+<tr><td><strong>alexzhirkevich</strong></td><td>arkivanov/Decompose</td><td><span class="badge" style="background: var(--lime);">6</span></td><td>4</td><td>2</td><td>28.82 ч.</td></tr></tbody></table></div>
+        <div class="card"><div class="card-header"><span>4. Аналитика меток (Labels)</span><span class="meta-tag">cdm.label_analytics</span></div>
+            <table><thead><tr><th>Метка</th><th>Репозиторий</th><th>Всего</th><th>Закрыто</th><th>Close Rate</th></tr></thead><tbody><tr><td><span class="badge badge-issue">question</span></td><td>arkivanov/Decompose</td><td><strong>82</strong></td><td>82</td><td><span class="badge badge-closed">100.00%</span></td></tr>
+<tr><td><span class="badge badge-issue">enhancement</span></td><td>arkivanov/Decompose</td><td><strong>77</strong></td><td>74</td><td><span class="badge badge-closed">96.10%</span></td></tr>
+<tr><td><span class="badge badge-issue">documentation</span></td><td>arkivanov/Decompose</td><td><strong>46</strong></td><td>46</td><td><span class="badge badge-closed">100.00%</span></td></tr>
+<tr><td><span class="badge badge-issue">bug</span></td><td>arkivanov/Decompose</td><td><strong>44</strong></td><td>44</td><td><span class="badge badge-closed">100.00%</span></td></tr>
+<tr><td><span class="badge badge-issue">enhancement</span></td><td>arkivanov/MVIKotlin</td><td><strong>21</strong></td><td>19</td><td><span class="badge badge-closed">90.48%</span></td></tr>
+<tr><td><span class="badge badge-issue">help wanted</span></td><td>arkivanov/Decompose</td><td><strong>19</strong></td><td>19</td><td><span class="badge badge-closed">100.00%</span></td></tr>
+<tr><td><span class="badge badge-issue">enhancement</span></td><td>arkivanov/Essenty</td><td><strong>16</strong></td><td>15</td><td><span class="badge badge-closed">93.75%</span></td></tr>
+<tr><td><span class="badge badge-issue">not decompose</span></td><td>arkivanov/Decompose</td><td><strong>16</strong></td><td>16</td><td><span class="badge badge-closed">100.00%</span></td></tr>
+<tr><td><span class="badge badge-issue">investigate</span></td><td>arkivanov/Decompose</td><td><strong>15</strong></td><td>15</td><td><span class="badge badge-closed">100.00%</span></td></tr>
+<tr><td><span class="badge badge-issue">good first issue</span></td><td>arkivanov/Decompose</td><td><strong>10</strong></td><td>10</td><td><span class="badge badge-closed">100.00%</span></td></tr></tbody></table></div>
     </div>
     <div class="charts-row">
-        <div class="card"><div class="card-header"><span>5. История изменений репозиториев (SCD2 дельты)</span><span class="meta">cdm.repository_version_history</span></div>
-            <table><thead><tr><th>Репозиторий</th><th>Версия</th><th>Звезды (Δ)</th><th>Forks (Δ)</th><th>Open Issues (Δ)</th><th>valid_from</th></tr></thead><tbody><tr><td>arkivanov/MVIKotlin</td><td>v1 (текущая)</td><td>1850 (0)</td><td>120 (0)</td><td>8 (0)</td><td>2026-10-18 10:00</td></tr>
-<tr><td>arkivanov/Decompose</td><td>v1</td><td>3450 (0)</td><td>210 (0)</td><td>15 (0)</td><td>2026-10-18 10:00</td></tr>
-<tr><td>arkivanov/Decompose</td><td>v2 (текущая)</td><td>3485 (+35)</td><td>215 (+5)</td><td>14 (-1)</td><td>2026-10-20 10:00</td></tr>
-<tr><td>arkivanov/Essenty</td><td>v1 (текущая)</td><td>920 (0)</td><td>45 (0)</td><td>4 (0)</td><td>2026-10-18 10:00</td></tr></tbody></table></div>
-        <div class="card"><div class="card-header"><span>6. Детализация жизненного цикла (Последние 10 сущностей)</span><span class="meta">cdm.issue_lifecycle_current</span></div>
-            <table><thead><tr><th>#</th><th>Тип</th><th>Заголовок</th><th>Статус</th><th>Возраст / SLA</th></tr></thead><tbody><tr><td>#5</td><td><span class="badge badge-pr">PR</span></td><td>Add WebAssembly (Wasm) targets support</td><td><span class="badge badge-open">open</span></td><td>0.53 дн. (открыт)</td></tr>
-<tr><td>#21</td><td><span class="badge badge-issue">Issue</span></td><td>BackHandler predictive back gesture supp</td><td><span class="badge badge-open">open</span></td><td>222.36 дн. (открыт)</td></tr>
-<tr><td>#4</td><td><span class="badge badge-issue">Issue</span></td><td>Fix memory leak in ChildStack router</td><td><span class="badge badge-closed">closed</span></td><td>5375.00 ч.</td></tr>
-<tr><td>#11</td><td><span class="badge badge-pr">PR</span></td><td>Add TimeTravelServer sample for Android</td><td><span class="badge badge-open">open</span></td><td>229.23 дн. (открыт)</td></tr>
-<tr><td>#3</td><td><span class="badge badge-issue">Issue</span></td><td>Add retainInstance documentation for JVM</td><td><span class="badge badge-open">open</span></td><td>233.32 дн. (открыт)</td></tr>
-<tr><td>#10</td><td><span class="badge badge-issue">Issue</span></td><td>Coroutines executor thread safety issue</td><td><span class="badge badge-closed">closed</span></td><td>52.00 ч.</td></tr>
-<tr><td>#2</td><td><span class="badge badge-pr">PR</span></td><td>Support Compose Multiplatform 1.8</td><td><span class="badge badge-closed">closed</span></td><td>24.00 ч.</td></tr>
-<tr><td>#1</td><td><span class="badge badge-issue">Issue</span></td><td>Navigation backstack animation glitch on</td><td><span class="badge badge-closed">closed</span></td><td>56.00 ч.</td></tr>
-<tr><td>#20</td><td><span class="badge badge-issue">Issue</span></td><td>Lifecycle owner hierarchy validation</td><td><span class="badge badge-closed">closed</span></td><td>24.00 ч.</td></tr></tbody></table></div>
+        <div class="card"><div class="card-header"><span>5. История изменений репозиториев (SCD2 дельты)</span><span class="meta-tag">cdm.repository_version_history</span></div>
+            <table><thead><tr><th>Репозиторий</th><th>Версия</th><th>Звезды (Δ)</th><th>Forks (Δ)</th><th>Open Issues (Δ)</th><th>valid_from</th></tr></thead><tbody><tr><td>arkivanov/Essenty</td><td>v1</td><td>585 (0)</td><td>18 (0)</td><td>1 (0)</td><td>2026-10-20 12:15</td></tr>
+<tr><td>arkivanov/Essenty</td><td>v2 <span class="badge" style="background: var(--lime);">текущая</span></td><td>587 (+2)</td><td>18 (0)</td><td>1 (0)</td><td>2026-10-21 12:15</td></tr>
+<tr><td>arkivanov/MVIKotlin</td><td>v1</td><td>1032 (0)</td><td>43 (0)</td><td>3 (0)</td><td>2026-10-20 12:15</td></tr>
+<tr><td>arkivanov/MVIKotlin</td><td>v2 <span class="badge" style="background: var(--lime);">текущая</span></td><td>1034 (+2)</td><td>43 (0)</td><td>3 (0)</td><td>2026-10-21 12:15</td></tr>
+<tr><td>arkivanov/Decompose</td><td>v1</td><td>2882 (0)</td><td>110 (0)</td><td>4 (0)</td><td>2026-10-20 12:15</td></tr>
+<tr><td>arkivanov/Decompose</td><td>v2 <span class="badge" style="background: var(--lime);">текущая</span></td><td>2884 (+2)</td><td>110 (0)</td><td>4 (0)</td><td>2026-10-21 12:15</td></tr></tbody></table></div>
+        <div class="card"><div class="card-header"><span>6. Детализация жизненного цикла (Последние 10 сущностей)</span><span class="meta-tag">cdm.issue_lifecycle_current</span></div>
+            <table><thead><tr><th>#</th><th>Тип</th><th>Заголовок</th><th>Статус</th><th>Возраст / SLA</th></tr></thead><tbody><tr><td>#1045</td><td><span class="badge badge-pr">PR</span></td><td>[V4] Updated dependency versions</td><td><span class="badge badge-open">open</span></td><td>2.75 дн. (открыт)</td></tr>
+<tr><td>#1044</td><td><span class="badge badge-pr">PR</span></td><td>[V4] Bump minSdkVersion to 24 and compil</td><td><span class="badge badge-closed">closed</span></td><td>0.40 ч.</td></tr>
+<tr><td>#1043</td><td><span class="badge badge-pr">PR</span></td><td>[V4] Remove childContext extension funct</td><td><span class="badge badge-closed">closed</span></td><td>0.59 ч.</td></tr>
+<tr><td>#1042</td><td><span class="badge badge-pr">PR</span></td><td>Update v4</td><td><span class="badge badge-closed">closed</span></td><td>0.61 ч.</td></tr>
+<tr><td>#1041</td><td><span class="badge badge-pr">PR</span></td><td>Remove lifecycle from ChildrenNavigator</td><td><span class="badge badge-closed">closed</span></td><td>1.06 ч.</td></tr>
+<tr><td>#1040</td><td><span class="badge badge-pr">PR</span></td><td>[V4] Update v4 branch</td><td><span class="badge badge-closed">closed</span></td><td>0.82 ч.</td></tr>
+<tr><td>#1039</td><td><span class="badge badge-pr">PR</span></td><td>Fix Children getting stuck when the stac</td><td><span class="badge badge-closed">closed</span></td><td>8.01 ч.</td></tr>
+<tr><td>#1038</td><td><span class="badge badge-pr">PR</span></td><td>Coerce target progress in MaterialPredic</td><td><span class="badge badge-closed">closed</span></td><td>19.64 ч.</td></tr>
+<tr><td>#1037</td><td><span class="badge badge-pr">PR</span></td><td>[V4] Update v4 branch</td><td><span class="badge badge-closed">closed</span></td><td>0.82 ч.</td></tr>
+<tr><td>#1036</td><td><span class="badge badge-issue">Issue</span></td><td>`Children` freezes when a navigation lan</td><td><span class="badge badge-closed">closed</span></td><td>101.14 ч.</td></tr></tbody></table></div>
     </div>
 </body>
 </html>

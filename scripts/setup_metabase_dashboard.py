@@ -31,20 +31,32 @@ def load_metabase_queries(sql_path: str | None = None) -> list[str]:
 
 SQL_QUERIES = load_metabase_queries()
 
+NEOBRUTAL_COLORS = ["#00E5FF", "#C084FC", "#B8FF01", "#FFE600", "#FF6B6B", "#111111"]
+
 METABASE_CARD_METAS = [
-    ("01. Ключевые показатели экосистемы (KPI Summary)", "Сводные агрегаты по репозиториям, закрытым задачам, SLA и авторам", "table", 24, 3),
-    ("02. Сводка по репозиториям (Overview Table)", "Звезды, форки, открытые/закрытые задачи, SLA и версии SCD2", "table", 12, 7),
-    ("03. Помесячная динамика активности (Monthly Activity)", "Динамика создания и закрытия задач и PR по календарным месяцам", "bar", 12, 7),
-    ("04. Соотношение Issues и Pull Requests", "Сравнение общего числа и открытых/закрытых issues и PR по проектам", "table", 12, 6),
-    ("05. Распределение SLA и возраста сущностей (Percentiles)", "Медиана (p50), 90-й перцентиль (p90) SLA решения и средний возраст открытых задач", "table", 12, 6),
-    ("06. Топ контрибьюторов (Top Contributors)", "Рейтинг авторов по числу созданных issues, PR и среднему времени решения", "table", 12, 7),
-    ("07. Аналитика меток (Label Analytics)", "Частота использования тегов и процент закрытия связанных задач", "table", 12, 7),
-    ("08. История версий репозиториев (SCD2 Version History)", "Хронология срезов SCD2, изменения звезд, форков и открытых issues", "table", 24, 6),
+    ("01. Ключевые показатели экосистемы (KPI Summary)", "Сводные агрегаты по репозиториям, закрытым задачам, SLA и авторам", "table", 24, 3, {}),
+    ("02. Сводка по репозиториям (Overview Table)", "Звезды, форки, открытые/закрытые задачи, SLA и версии SCD2", "table", 12, 7, {}),
+    ("03. Помесячная динамика активности (Monthly Activity)", "Динамика создания и закрытия задач и PR по календарным месяцам", "bar", 12, 7, {
+        "graph.dimensions": ["month", "item_type"], "graph.metrics": ["items_created"],
+        "graph.colors": NEOBRUTAL_COLORS, "stackable.stack_type": "stacked",
+    }),
+    ("04. Соотношение Issues и Pull Requests", "Сравнение общего числа и открытых/закрытых issues и PR по проектам", "bar", 12, 6, {
+        "graph.dimensions": ["repository"], "graph.metrics": ["closed_issues", "open_issues", "closed_prs", "open_prs"],
+        "graph.colors": NEOBRUTAL_COLORS, "stackable.stack_type": "stacked",
+    }),
+    ("05. Распределение SLA и возраста сущностей (Percentiles)", "Медиана (p50), 90-й перцентиль (p90) SLA решения и средний возраст открытых задач", "table", 12, 6, {}),
+    ("06. Топ контрибьюторов (Top Contributors)", "Рейтинг авторов по числу созданных issues, PR и среднему времени решения", "table", 12, 7, {}),
+    ("07. Аналитика меток (Label Analytics)", "Частота использования тегов и процент закрытия связанных задач", "row", 12, 7, {
+        "graph.dimensions": ["label_name"], "graph.metrics": ["total_items_count"],
+        "graph.colors": ["#00E5FF"],
+    }),
+    ("08. История версий репозиториев (SCD2 Version History)", "Хронология срезов SCD2, изменения звезд, форков и открытых issues", "table", 24, 6, {}),
 ]
 
 METABASE_CARDS: list[dict[str, Any]] = [
     {
         "name": m[0], "description": m[1], "display": m[2], "size_x": m[3], "size_y": m[4],
+        "visualization_settings": m[5],
         "query": SQL_QUERIES[idx] if idx < len(SQL_QUERIES) else "",
     }
     for idx, m in enumerate(METABASE_CARD_METAS)
@@ -70,7 +82,9 @@ def setup_metabase_api(metabase_url: str, user: str, password: str, db_config: d
     db_id = None
     req_dbs = urllib.request.Request(f"{metabase_url.rstrip('/')}/api/database", headers=headers)
     with urllib.request.urlopen(req_dbs) as resp:
-        for d in json.load(resp):
+        raw_dbs = json.load(resp)
+        dbs = raw_dbs.get("data", []) if isinstance(raw_dbs, dict) else raw_dbs
+        for d in dbs:
             if d.get("name") == "ppad_dwh":
                 db_id = d.get("id")
                 break
@@ -92,7 +106,9 @@ def setup_metabase_api(metabase_url: str, user: str, password: str, db_config: d
     req_get_dash = urllib.request.Request(f"{metabase_url.rstrip('/')}/api/dashboard", headers=headers)
     try:
         with urllib.request.urlopen(req_get_dash) as resp:
-            for d in json.load(resp):
+            raw_dash = json.load(resp)
+            dashboards = raw_dash.get("data", []) if isinstance(raw_dash, dict) else raw_dash
+            for d in dashboards:
                 if d.get("name") == "Аналитика репозиториев Kotlin Multiplatform (CDM)":
                     dash_id = d.get("id")
                     break
@@ -112,7 +128,9 @@ def setup_metabase_api(metabase_url: str, user: str, password: str, db_config: d
     req_cards = urllib.request.Request(f"{metabase_url.rstrip('/')}/api/card", headers=headers)
     try:
         with urllib.request.urlopen(req_cards) as resp:
-            for c in json.load(resp):
+            raw_cards = json.load(resp)
+            cards = raw_cards.get("data", []) if isinstance(raw_cards, dict) else raw_cards
+            for c in cards:
                 existing_cards[c.get("name")] = c.get("id")
     except (urllib.error.URLError, json.JSONDecodeError):
         pass
@@ -128,14 +146,16 @@ def setup_metabase_api(metabase_url: str, user: str, password: str, db_config: d
         pass
 
     card_results, col, row = [], 0, 0
-    for card_def in METABASE_CARDS:
+    dashcards = []
+    for idx, card_def in enumerate(METABASE_CARDS):
         card_name = card_def["name"]
+        vis_settings = card_def.get("visualization_settings", {})
         card_id = existing_cards.get(card_name)
         if card_id is None:
             card_payload = json.dumps({
                 "name": card_name, "description": card_def["description"],
                 "dataset_query": {"type": "native", "native": {"query": card_def["query"]}, "database": db_id},
-                "display": card_def.get("display", "table"), "visualization_settings": {},
+                "display": card_def.get("display", "table"), "visualization_settings": vis_settings,
             }).encode("utf-8")
             req_create = urllib.request.Request(f"{metabase_url.rstrip('/')}/api/card", data=card_payload, headers=headers)
             try:
@@ -144,23 +164,45 @@ def setup_metabase_api(metabase_url: str, user: str, password: str, db_config: d
             except (urllib.error.URLError, json.JSONDecodeError):
                 continue
 
+        # Execute query to populate result_metadata columns and save with settings
+        q_req = urllib.request.Request(f"{metabase_url.rstrip('/')}/api/card/{card_id}/query", data=b"{}", headers=headers)
+        res_cols = []
+        try:
+            with urllib.request.urlopen(q_req) as q_resp:
+                res_cols = json.load(q_resp).get("data", {}).get("results_metadata", {}).get("columns", [])
+        except (urllib.error.URLError, json.JSONDecodeError):
+            pass
+
+        upd = {"display": card_def.get("display", "table"), "visualization_settings": vis_settings}
+        if res_cols:
+            upd["result_metadata"] = res_cols
+        req_upd = urllib.request.Request(
+            f"{metabase_url.rstrip('/')}/api/card/{card_id}",
+            data=json.dumps(upd).encode("utf-8"),
+            headers=headers, method="PUT",
+        )
+        try:
+            with urllib.request.urlopen(req_upd): pass
+        except (urllib.error.URLError, json.JSONDecodeError): pass
+
         sx, sy = card_def.get("size_x", 12), card_def.get("size_y", 6)
-        if col + sx > 24: col, row = 0, row + 6
-
-        if card_id not in attached_card_ids:
-            attach_payload = json.dumps({"cardId": card_id, "row": row, "col": col, "size_x": sx, "size_y": sy}).encode("utf-8")
-            req_attach = urllib.request.Request(f"{metabase_url.rstrip('/')}/api/dashboard/{dash_id}/cards", data=attach_payload, headers=headers)
-            try:
-                with urllib.request.urlopen(req_attach): pass
-            except urllib.error.URLError:
-                try:
-                    fallback = urllib.request.Request(f"{metabase_url.rstrip('/')}/api/dashboard/{dash_id}/cards", data=json.dumps({"cardId": card_id}).encode("utf-8"), headers=headers)
-                    with urllib.request.urlopen(fallback): pass
-                except urllib.error.URLError: pass
-
         card_results.append({"name": card_name, "id": card_id})
+        dashcards.append({
+            "id": -(idx + 1), "card_id": card_id, "row": row, "col": col,
+            "size_x": sx, "size_y": sy, "series": [], "visualization_settings": vis_settings, "parameter_mappings": [],
+        })
         col += sx
         if col >= 24: col, row = 0, row + sy
+
+    try:
+        req_put_dash = urllib.request.Request(
+            f"{metabase_url.rstrip('/')}/api/dashboard/{dash_id}",
+            data=json.dumps({"dashcards": dashcards}).encode("utf-8"),
+            headers=headers, method="PUT",
+        )
+        with urllib.request.urlopen(req_put_dash): pass
+    except (urllib.error.URLError, json.JSONDecodeError):
+        pass
 
     print(f"Metabase setup complete: database_id={db_id}, dashboard_id={dash_id}, cards={len(card_results)}")
     return {"database_id": db_id, "dashboard_id": dash_id, "cards_count": len(card_results), "cards": card_results}
