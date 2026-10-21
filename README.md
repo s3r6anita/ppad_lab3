@@ -23,9 +23,9 @@ Apache Airflow управляет загрузками и зависимостя
 
 ## Ответственность участников
 
-1. **Участник 1:** Инфраструктура, оркестрация, GitHub REST API → STG (`dags/github_to_stg.py`, `sql/01`–`06`, `docs/infrastructure.md`, `docs/stg_contract.md`).
-2. **Участник 2:** STG → DDS, историчность SCD2, проверки качества (`scripts/load_dds.py`, `sql/07`–`10`, `docs/dds_contract.md`, `docs/dds_runbook.md`).
-3. **Участник 3:** DDS → CDM, аналитические витрины, роли загрузчика/аналитика, дашборд Metabase / HTML Preview, Airflow интеграция (`scripts/load_cdm.py`, `sql/11`–`18`, `dags/dds_to_cdm.py`, `docs/cdm_contract.md`, `docs/cdm_runbook.md`, `docs/bi_dashboard_preview.html`).
+1. **Участник 1 (Рахманов Сергей):** Инфраструктура, оркестрация, GitHub REST API → STG (`dags/github_to_stg.py`, `sql/01`–`06`, `docs/infrastructure.md`, `docs/stg_contract.md`).
+2. **Участник 2 (Рахманова Софья):** STG → DDS, историчность SCD2, проверки качества (`scripts/load_dds.py`, `sql/07`–`10`, `docs/dds_contract.md`, `docs/dds_runbook.md`).
+3. **Участник 3 (Звездаков Александр):** DDS → CDM, аналитические витрины, роли загрузчика/аналитика, дашборд Metabase / HTML Preview, Airflow интеграция (`scripts/load_cdm.py`, `sql/11`–`18`, `dags/dds_to_cdm.py`, `docs/cdm_contract.md`, `docs/cdm_runbook.md`, `docs/bi_dashboard_preview.html`).
 
 ## Статус
 
